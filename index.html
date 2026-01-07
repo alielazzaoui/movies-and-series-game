@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Series Guessing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #e9d5ff;
+            font-size: 1.2rem;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fbbf24;
+            margin-top: 20px;
+        }
+
+        .game-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .info p {
+            color: #e9d5ff;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .info .counter {
+            color: #c4b5fd;
+        }
+
+        .image-container {
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .image-box {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .image-box:hover {
+            transform: scale(1.05);
+        }
+
+        .image-box.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .image-box.disabled:hover {
+            transform: none;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"]::placeholder {
+            color: #e9d5ff;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #a78bfa;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(16, 185, 129, 0.6);
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+            margin-top: 20px;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(139, 92, 246, 0.6);
+        }
+
+        .result {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .result-emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .result h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .result.won h2 {
+            color: #86efac;
+        }
+
+        .result.lost h2 {
+            color: #fca5a5;
+        }
+
+        .result p {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .result .points {
+            color: #e9d5ff;
+            font-size: 1.1rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: #e9d5ff;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .welcome-content {
+            padding: 20px;
+        }
+
+        .difficulty-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 20px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+
+        .difficulty-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .difficulty-btn.selected {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            border-color: #ec4899;
+            box-shadow: 0 5px 15px rgba(236, 72, 153, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .difficulty-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Pixelation/Blur Effects - 5 levels */
+        .pixelated-medium-high {
+            filter: blur(20px);
+            image-rendering: pixelated;
+        }
+
+        .pixelated-medium {
+            filter: blur(15px);
+            image-rendering: pixelated;
+        }
+
+        .pixelated-medium-low {
+            filter: blur(10px);
+            image-rendering: pixelated;
+        }
+
+        .pixelated-low {
+            filter: blur(5px);
+            image-rendering: auto;
+        }
+
+        .pixelated-very-low {
+            filter: blur(2px);
+            image-rendering: auto;
+        }
+
+        .clear {
+            filter: none;
+            image-rendering: auto;
+        }
+
+        /* Timer display */
+      #timer {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+
+    font-family: monospace;
+    font-size: 3rem;
+    font-weight: bold;
+
+    text-align: center;
+    line-height: 70px; /* 🔥 هذا هو السر */
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    border: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+
+        #timer.warning {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-color: #fca5a5;
+            animation: pulse 0.5s infinite;
+            box-shadow: 0 8px 30px rgba(239, 68, 68, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 8px 30px rgba(239, 68, 68, 0.6);
+            }
+            50% { 
+                transform: scale(1.1);
+                box-shadow: 0 8px 35px rgba(239, 68, 68, 0.8);
+            }
+        }
+
+        /* Final Screen Styles */
+        #final-screen {
+            text-align: center;
+        }
+
+        #final-screen h2 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .final-stats {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .final-stats h3 {
+            color: #fbbf24;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .final-stats p {
+            color: white;
+            font-size: 1.5rem;
+            margin: 10px 0;
+        }
+
+        .final-stats .final-score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #10b981;
+            margin: 20px 0;
+        }
+
+        #score-table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        #score-table thead {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        #score-table th {
+            color: #fbbf24;
+            padding: 15px;
+            font-size: 1.2rem;
+        }
+
+        #score-table td {
+            color: white;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #score-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        #play-again-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        #play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(16, 185, 129, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen">
+            <div class="header">
+                <h1>Movies and TV Series Guess</h1>
+                <p>Test your Movies and TV series knowledge 
+                    with your friends!</p>
+            </div>
+
+            <div class="game-box">
+                <div class="welcome-content">
+                    <h2 style="color: white; font-size: 2rem; margin-bottom: 30px; text-align: center;">Welcome!</h2>
+                    
+                    <div class="input-section">
+                        <label style="color: #e9d5ff; font-size: 1.1rem; margin-bottom: 10px; display: block;text-align: center;">Enter Your Name:</label>
+                        <input type="text" id="player-name" placeholder="Your name...">
+                    </div>
+
+                    <div style="margin: 30px 0;">
+                        <label style="color: #e9d5ff; font-size: 1.1rem; margin-bottom: 15px; display: block;text-align: center;">Choose Difficulty:</label>
+                        <div class="difficulty-options">
+                            <button class="difficulty-btn" data-difficulty="easy">
+                                <span style="font-size: 1.5rem;">😊</span>
+                                <span>Easy</span>
+                                <span style="font-size: 0.9rem;">15 Seconds</span>
+                            </button>
+                            <button class="difficulty-btn" data-difficulty="medium">
+                                <span style="font-size: 1.5rem;">😐</span>
+                                <span>Medium</span>
+                                <span style="font-size: 0.9rem;">10 Seconds</span>
+                            </button>
+                            <button class="difficulty-btn" data-difficulty="hard">
+                                <span style="font-size: 1.5rem;">😰</span>
+                                <span>Hard</span>
+                                <span style="font-size: 0.9rem;">5 Seconds</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="submit-btn" id="start-game-btn">
+                        <span>▶</span>
+                        Start Game
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden">
+            <div class="header">
+                <h1>TV Series Guess</h1>
+                <p>Player: <span id="player-display" style="color: #fbbf24;"></span></p>
+                <div class="score">Score: <span id="score">0</span></div>
+            </div>
+
+            <div class="game-box">
+                <div id="timer" style="display: none;">10</div>
+                
+                <div class="info">
+                    <h1>  <p>Guess the Movie or TV series!</p></h1>
+                </div>
+
+                <div class="image-container">
+                    <div class="image-box" id="image-box">
+                        <img id="series-image" src="" alt="">
+                    </div>
+                </div>
+
+                <div id="playing-section">
+                    <div class="input-section">
+                        <input type="text" id="guess-input" placeholder="Enter series name...">
+                        <button class="submit-btn" id="submit-btn">
+                            <span>✓</span>
+                            Submit Guess
+                        </button>
+                    </div>
+                </div>
+
+                <div id="result-section" class="result hidden">
+                    <div class="result-emoji" id="result-emoji"></div>
+                    <h2 id="result-title"></h2>
+                    <p>The series was: <strong id="series-name"></strong></p>
+                    <p class="points" id="result-points"></p>
+                    <button class="next-btn" id="next-btn">
+                        <span>↻</span>
+                        Next Series
+                    </button>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p id="footer-text">Image becomes clearer every 10 seconds. Guess faster for higher score!</p>
+            </div>
+        </div>
+
+        <!-- Final Screen -->
+        <div id="final-screen" class="hidden">
+            <div class="header">
+                <h2>🎮 Game Over! 🎮</h2>
+            </div>
+
+            <div class="game-box">
+                <div class="final-stats">
+                    <h3>Final Results</h3>
+                    <p>Player: <span id="final-player-name" style="color: #fbbf24;"></span></p>
+                    <div class="final-score" id="final-score">0</div>
+                    <p style="color: #e9d5ff;">Points</p>
+                </div>
+
+                <h3 style="color: white; margin-bottom: 20px;">🏆 Leaderboard 🏆</h3>
+                <table id="score-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player Name</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="score-table-body">
+                    </tbody>
+                </table>
+
+                <button id="play-again-btn">
+                    <span>🔄</span>
+                    Play Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="guess.js"></script>
+</body>
+</html>
