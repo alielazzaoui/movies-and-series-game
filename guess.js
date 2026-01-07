@@ -13,7 +13,7 @@ const series = [
         image: "images/ST5.png"
     },
     {
-        name: "Game of Thrones",
+        name: "Game of zb",
         image: "images/GOT.jpg"
     },
     {
